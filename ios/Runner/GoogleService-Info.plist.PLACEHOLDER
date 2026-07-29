@@ -1,0 +1,7 @@
+REPLACE THIS FILE.
+Download GoogleService-Info.plist from Firebase Console:
+1. https://console.firebase.google.com → your project
+2. Add iOS app with bundle ID: com.peleka.customer
+3. Download GoogleService-Info.plist
+4. In Xcode: right-click Runner → Add Files to "Runner" → select it
+   (Remove the .PLACEHOLDER suffix first)

@@ -1,0 +1,4 @@
+# Flutter auto-generates local.properties on first `flutter run`/`flutter build`.
+# If it is missing, create android/local.properties with:
+#   sdk.dir=/path/to/Android/sdk
+#   flutter.sdk=/path/to/flutter

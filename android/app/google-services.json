@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "264480212054",
+    "project_id": "peleka-rwanda",
+    "storage_bucket": "peleka-rwanda.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:264480212054:android:4ef6892340b9198b5927f7",
+        "android_client_info": {
+          "package_name": "com.example.peleka_client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAo0qLI3utrjPEtYyBZwm10c28XcLaJqo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,10 @@
+{
+  "_comment": "REPLACE THIS FILE. Download the real google-services.json from Firebase Console:",
+  "_steps": [
+    "1. https://console.firebase.google.com → your project",
+    "2. Add Android app with package name: com.peleka.customer",
+    "3. Add your debug SHA-1 (run: cd android && ./gradlew signingReport)",
+    "4. Download google-services.json",
+    "5. Place it at android/app/google-services.json (remove the .PLACEHOLDER suffix)"
+  ]
+}
