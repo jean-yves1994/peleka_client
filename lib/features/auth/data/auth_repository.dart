@@ -33,10 +33,16 @@ class AuthRepository {
     return _finish((await _api.post('/api/auth/login', body: b))['data']);
   }
 
-  Future<User> register({String? email, String? phone, required String password, required String fullName}) async {
-    final b = <String, dynamic>{'password': password, 'full_name': fullName};
-    if (email != null && email.isNotEmpty) b['email'] = email;
-    if (phone != null && phone.isNotEmpty) b['phone'] = phone;
+  Future<User> register({String? email, String? confirmEmail, String? phone, String? confirmPhone, required String password, required String confirmPassword, required String fullName}) async {
+    final b = <String, dynamic>{'password': password, 'confirm_password': confirmPassword, 'full_name': fullName};
+    if (email != null && email.isNotEmpty) {
+      b['email'] = email;
+      b['confirm_email'] = confirmEmail;
+    }
+    if (phone != null && phone.isNotEmpty) {
+      b['phone'] = phone;
+      b['confirm_phone'] = confirmPhone;
+    }
     return _finish((await _api.post('/api/auth/register', body: b))['data']);
   }
 

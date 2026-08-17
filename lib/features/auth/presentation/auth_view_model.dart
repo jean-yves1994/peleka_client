@@ -63,10 +63,10 @@ class AuthViewModel extends StateNotifier<AuthState> {
     }
   }
 
-  Future<bool> register({String? email, String? phone, required String password, required String fullName}) async {
+  Future<bool> register({String? email, String? confirmEmail, String? phone, String? confirmPhone, required String password, required String confirmPassword, required String fullName}) async {
     state = state.copyWith(loading: true, error: null);
     try {
-      final u = await _repo.register(email: email, phone: phone, password: password, fullName: fullName);
+      final u = await _repo.register(email: email, confirmEmail: confirmEmail, phone: phone, confirmPhone: confirmPhone, password: password, confirmPassword: confirmPassword, fullName: fullName);
       state = state.copyWith(status: AuthStatus.authenticated, user: u, loading: false);
       return true;
     } catch (e) {

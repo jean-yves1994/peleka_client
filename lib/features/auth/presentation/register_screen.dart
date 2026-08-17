@@ -18,6 +18,9 @@ class _S extends ConsumerState<RegisterScreen> {
   final _e = TextEditingController();
   final _p = TextEditingController();
   final _pw = TextEditingController();
+  final _cpw = TextEditingController();
+  final _ce = TextEditingController();
+  final _cp = TextEditingController();
   bool _obscure = true;
   @override
   void dispose() {
@@ -25,6 +28,9 @@ class _S extends ConsumerState<RegisterScreen> {
     _e.dispose();
     _p.dispose();
     _pw.dispose();
+    _cpw.dispose();
+    _ce.dispose();
+    _cp.dispose();
     super.dispose();
   }
 
@@ -33,8 +39,11 @@ class _S extends ConsumerState<RegisterScreen> {
     final ok = await ref.read(authViewModelProvider.notifier).register(
         fullName: _n.text.trim(),
         email: _e.text.trim().isEmpty ? null : _e.text.trim(),
+        confirmEmail: _ce.text.trim().isEmpty ? null : _ce.text.trim(),
         phone: _p.text.trim().isEmpty ? null : _p.text.trim(),
-        password: _pw.text);
+        confirmPhone: _cp.text.trim().isEmpty ? null : _cp.text.trim(),
+        password: _pw.text,
+        confirmPassword: _cpw.text);
     if (ok && mounted) context.go('/home');
   }
 
@@ -61,7 +70,7 @@ class _S extends ConsumerState<RegisterScreen> {
                                   color: AppColors.navy)),
                           const SizedBox(height: 6),
                           const Text(
-                              'Provide email OR phone (or both). Password required.',
+                              'Provide email or phone (or both). Confirm your contact details and password.',
                               style: TextStyle(
                                   fontSize: 13, color: AppColors.ink500)),
                           const SizedBox(height: 24),
@@ -80,7 +89,29 @@ class _S extends ConsumerState<RegisterScreen> {
                               hint: 'you@example.rw',
                               controller: _e,
                               prefixIcon: Icons.mail_outline,
-                              keyboardType: TextInputType.emailAddress),
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (v) {
+                                final value = (v ?? '').trim();
+                                if (value.isEmpty) return null;
+                                final ok = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(value);
+                                return ok ? null : 'Enter a valid email address';
+                              }),
+                          const SizedBox(height: 14),
+                          PelekaTextField(
+                              label: 'Confirm email',
+                              hint: 'Re-enter your email',
+                              controller: _ce,
+                              prefixIcon: Icons.mark_email_read_outlined,
+                              keyboardType: TextInputType.emailAddress,
+                              validator: (v) {
+                                final email = _e.text.trim();
+                                final confirm = (v ?? '').trim();
+                                if (email.isEmpty && confirm.isEmpty) return null;
+                                if (email.isEmpty && confirm.isNotEmpty) return 'Enter your email first';
+                                if (confirm.isEmpty) return 'Please confirm your email';
+                                if (email.toLowerCase() != confirm.toLowerCase()) return 'Email addresses do not match';
+                                return null;
+                              }),
                           const SizedBox(height: 14),
                           PelekaTextField(
                               label: 'Phone',
@@ -94,6 +125,23 @@ class _S extends ConsumerState<RegisterScreen> {
                                 return (!e && !p)
                                     ? 'Email or phone required'
                                     : null;
+                              }),
+                          const SizedBox(height: 14),
+                          PelekaTextField(
+                              label: 'Confirm phone',
+                              hint: 'Re-enter your phone number',
+                              controller: _cp,
+                              prefixIcon: Icons.verified_user_outlined,
+                              keyboardType: TextInputType.phone,
+                              validator: (v) {
+                                final phone = _p.text.trim();
+                                final confirm = (v ?? '').trim();
+                                if (phone.isEmpty && confirm.isEmpty) return null;
+                                if (phone.isEmpty && confirm.isNotEmpty) return 'Enter your phone first';
+                                if (confirm.isEmpty) return 'Please confirm your phone';
+                                final a = phone.replaceAll(RegExp(r'[^0-9+]'), '');
+                                final b = confirm.replaceAll(RegExp(r'[^0-9+]'), '');
+                                return a == b ? null : 'Phone numbers do not match';
                               }),
                           const SizedBox(height: 14),
                           PelekaTextField(
@@ -119,6 +167,16 @@ class _S extends ConsumerState<RegisterScreen> {
                                   return 'Must include a letter and a number';
                                 return null;
                               }),
+                          const SizedBox(height: 14),
+                          PelekaTextField(
+                              label: 'Confirm password',
+                              hint: 'Re-enter your password',
+                              controller: _cpw,
+                              obscureText: _obscure,
+                              prefixIcon: Icons.lock_reset_outlined,
+                              validator: (v) => (v ?? '') == _pw.text
+                                  ? null
+                                  : 'Passwords do not match'),
                           if (a.error != null) ...[
                             const SizedBox(height: 12),
                             Container(
