@@ -4,14 +4,16 @@ import '../domain/shipment.dart';
 class ShipmentRepository {
   final ApiClient _api;
   ShipmentRepository(this._api);
-  Future<Quote> quote({required double pickupLat, required double pickupLng, required double deliveryLat, required double deliveryLng,
-    required double parcelWeightKg, String? pickupCity, String? deliveryCity, String? discountCode}) async {
-    final b = <String, dynamic>{'pickup_lat': pickupLat, 'pickup_lng': pickupLng, 'delivery_lat': deliveryLat, 'delivery_lng': deliveryLng, 'parcel_weight_kg': parcelWeightKg};
+  Future<Quote> quote({required double pickupLat, required double pickupLng, required double deliveryLat, required double deliveryLng, String? pickupCity, String? deliveryCity, String? discountCode}) async {
+    final b = <String, dynamic>{'pickup_lat': pickupLat, 'pickup_lng': pickupLng, 'delivery_lat': deliveryLat, 'delivery_lng': deliveryLng};
     if (pickupCity != null) b['pickup_city'] = pickupCity; if (deliveryCity != null) b['delivery_city'] = deliveryCity;
     if (discountCode != null && discountCode.isNotEmpty) b['discount_code'] = discountCode;
     return Quote.fromJson(Map<String, dynamic>.from((await _api.post('/api/shipments/quote', body: b))['data']));
   }
-  Future<Shipment> create(Map<String, dynamic> b) async => Shipment.fromJson(Map<String, dynamic>.from((await _api.post('/api/shipments', body: b))['data']['shipment']));
+  Future<Shipment> create(Map<String, dynamic> b) async {
+    final d = Map<String, dynamic>.from((await _api.post('/api/shipments', body: b))['data']);
+    return Shipment.fromJson(d);
+  }
   Future<List<Shipment>> myShipments({int page = 1, int pageSize = 20, String? status}) async {
     final q = <String, dynamic>{'page': page, 'pageSize': pageSize}; if (status != null) q['status'] = status;
     final r = await _api.get('/api/shipments', query: q);

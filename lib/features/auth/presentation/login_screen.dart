@@ -130,24 +130,6 @@ class _S extends ConsumerState<LoginScreen> {
                               label: 'Sign in',
                               loading: a.loading,
                               onPressed: _submit),
-                          const SizedBox(height: 24),
-                          Row(children: const [
-                            Expanded(child: Divider(color: AppColors.ink200)),
-                            Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Text('or',
-                                    style: TextStyle(
-                                        color: AppColors.ink500,
-                                        fontSize: 12))),
-                            Expanded(child: Divider(color: AppColors.ink200))
-                          ]),
-                          const SizedBox(height: 16),
-                          PelekaButton(
-                              label: 'Continue with phone (OTP)',
-                              icon: Icons.smartphone,
-                              outlined: true,
-                              onPressed: () => context.push(
-                                  '/otp?phone=${_tab == 1 ? _id.text.trim() : ''}')),
                           const SizedBox(height: 28),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.center,

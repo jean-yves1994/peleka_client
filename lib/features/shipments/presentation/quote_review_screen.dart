@@ -14,7 +14,7 @@ import 'shipments_view_model.dart';
 /// PAY-BEFORE FLOW:
 ///   Creating the shipment no longer drops the user on the detail page.
 ///   The shipment is created as `pending_payment` and we immediately route
-///   to `/pay`, which opens the Flutterwave checkout in a WebView.
+///   to `/pay`, which opens the Paypack checkout in a WebView.
 class QuoteReviewScreen extends ConsumerStatefulWidget {
   const QuoteReviewScreen({super.key});
   @override
@@ -40,7 +40,6 @@ class _S extends ConsumerState<QuoteReviewScreen> {
             pickupLng: d.pickupLng!,
             deliveryLat: d.deliveryLat!,
             deliveryLng: d.deliveryLng!,
-            parcelWeightKg: d.parcelWeightKg,
             discountCode: _promo.text.trim(),
           );
       ref.read(draftProvider.notifier).update((x) => x
@@ -73,10 +72,13 @@ class _S extends ConsumerState<QuoteReviewScreen> {
       // Clear the draft so a back-navigation doesn't re-submit it.
       ref.read(draftProvider.notifier).state = CreateShipmentDraft();
 
-      // ⭐ PAY-BEFORE: go to the Flutterwave checkout, NOT the detail page.
-      context.go(
-        '/pay?shipmentId=${s.id}&trackingNumber=${Uri.encodeComponent(s.trackingNumber)}',
-      );
+      // Standard customers pay before dispatch. Premier customers are placed
+      // on invoice terms and can be assigned immediately.
+      if (s.paymentRequired) {
+        context.go('/pay?shipmentId=${s.id}&trackingNumber=${Uri.encodeComponent(s.trackingNumber)}');
+      } else {
+        context.go('/shipments/${s.id}');
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -100,7 +102,7 @@ class _S extends ConsumerState<QuoteReviewScreen> {
       appBar: AppBar(
         leading: IconButton(
             icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
-        title: const Text('Review & pay'),
+        title: const Text('Review shipment'),
       ),
       body: SafeArea(
         child: Column(children: [
@@ -125,11 +127,8 @@ class _S extends ConsumerState<QuoteReviewScreen> {
                     children: [
                       _kv('Parcel', d.parcelDescription),
                       _kv('Category', titleCase(d.parcelCategory)),
-                      _kv('Weight',
-                          '${d.parcelWeightKg.toStringAsFixed(1)} kg'),
                       _kv('Distance', '${q.distanceKm.toStringAsFixed(1)} km'),
                       if (d.isFragile) _kv('Fragile', 'Yes'),
-                      if (d.requiresSignature) _kv('Signature required', 'Yes'),
                     ]),
               ),
               const SizedBox(height: 12),
@@ -171,7 +170,6 @@ class _S extends ConsumerState<QuoteReviewScreen> {
                 child: Column(children: [
                   _p('Base fare', q.baseFare, q.currency),
                   _p('Distance fee', q.distanceFee, q.currency),
-                  _p('Weight fee', q.weightFee, q.currency),
                   const Divider(height: 20),
                   _p('Subtotal', q.subtotal, q.currency, bold: true),
                   if (q.discountAmount > 0)
@@ -197,19 +195,17 @@ class _S extends ConsumerState<QuoteReviewScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Pay-before notice
               PelekaCard(
                 color: AppColors.blueLight,
-                child: Row(children: const [
-                  Icon(Icons.lock_outline, size: 18, color: AppColors.blue),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'You pay securely now via Flutterwave (card or Mobile Money). '
-                      'Your rider is assigned right after payment.',
-                      style: TextStyle(fontSize: 12, color: AppColors.navy),
-                    ),
-                  ),
+                child: Row(children: [
+                  const Icon(Icons.info_outline, size: 18, color: AppColors.blue),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(
+                    q.paymentRequired
+                        ? 'Payment is required before this shipment is released to riders.'
+                        : 'Your Premier account can dispatch this shipment now. Payment can be settled later.',
+                    style: const TextStyle(fontSize: 12, color: AppColors.navy),
+                  )),
                 ]),
               ),
             ]),
@@ -219,8 +215,8 @@ class _S extends ConsumerState<QuoteReviewScreen> {
           Padding(
             padding: const EdgeInsets.all(20),
             child: PelekaButton(
-              label: 'Pay ${money(q.totalPrice, currency: q.currency)}',
-              icon: Icons.lock,
+              label: q.paymentRequired ? 'Continue to payment' : 'Confirm shipment',
+              icon: q.paymentRequired ? Icons.lock : Icons.check_circle_outline,
               loading: _confirming,
               onPressed: _confirmAndPay,
             ),

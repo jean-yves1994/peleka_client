@@ -6,7 +6,6 @@ import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/auth/presentation/onboarding_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
-import '../../features/auth/presentation/otp_screen.dart';
 import '../../features/auth/presentation/auth_view_model.dart';
 import '../../features/home/home_shell.dart';
 import '../../features/home/home_screen.dart';
@@ -17,7 +16,8 @@ import '../../features/shipments/presentation/quote_review_screen.dart';
 import '../../features/tracking/tracking_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/notifications/notifications_screen.dart';
-// ⭐ Payment screen (Flutterwave checkout)
+import '../../features/billing/billing_screen.dart';
+// ⭐ Payment screen (Paypack checkout)
 import '../../features/payments/presentation/payment_screen.dart';
 
 /// Router is built ONCE and never recreated (no `ref.watch` here — that would
@@ -29,12 +29,13 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: _RiverpodListenable(ref, authViewModelProvider),
 
     // Friendly fallback instead of a raw GoException screen.
-    errorBuilder: (context, state) => _RouteErrorScreen(location: state.uri.toString()),
+    errorBuilder: (context, state) =>
+        _RouteErrorScreen(location: state.uri.toString()),
 
     redirect: (context, state) {
       final auth = ref.read(authViewModelProvider);
       final loc = state.matchedLocation;
-      const authRoutes = ['/login', '/register', '/otp', '/onboarding'];
+      const authRoutes = ['/login', '/register', '/onboarding'];
       final isAuthRoute = authRoutes.contains(loc);
       final onSplash = loc == '/splash';
 
@@ -60,28 +61,33 @@ final routerProvider = Provider<GoRouter>((ref) {
 
     routes: [
       GoRoute(path: '/splash', builder: (_, __) => const SplashScreen()),
-      GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
+      GoRoute(
+          path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
-      GoRoute(
-        path: '/otp',
-        builder: (_, s) => OtpScreen(phone: s.uri.queryParameters['phone'] ?? ''),
-      ),
-
       // Bottom-nav shell
       ShellRoute(
         builder: (_, __, child) => HomeShell(child: child),
         routes: [
           GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
-          GoRoute(path: '/shipments', builder: (_, __) => const ShipmentsListScreen()),
-          GoRoute(path: '/notifications', builder: (_, __) => const NotificationsScreen()),
+          GoRoute(
+              path: '/shipments',
+              builder: (_, __) => const ShipmentsListScreen()),
+          GoRoute(
+              path: '/notifications',
+              builder: (_, __) => const NotificationsScreen()),
           GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
+          GoRoute(path: '/billing', builder: (_, __) => const BillingScreen()),
         ],
       ),
 
       // Full-screen flows
-      GoRoute(path: '/shipments/create', builder: (_, __) => const CreateShipmentScreen()),
-      GoRoute(path: '/shipments/quote', builder: (_, __) => const QuoteReviewScreen()),
+      GoRoute(
+          path: '/shipments/create',
+          builder: (_, __) => const CreateShipmentScreen()),
+      GoRoute(
+          path: '/shipments/quote',
+          builder: (_, __) => const QuoteReviewScreen()),
 
       // ⭐ PAYMENT ROUTE — this is what was missing.
       // Query params are read case-sensitively, so we accept both spellings
@@ -92,7 +98,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           final q = s.uri.queryParameters;
           final shipmentId = q['shipmentId'] ?? q['shipmentid'] ?? '';
           final tracking = q['trackingNumber'] ?? q['trackingnumber'] ?? '';
-          return PaymentScreen(shipmentId: shipmentId, trackingNumber: tracking);
+          return PaymentScreen(
+              shipmentId: shipmentId, trackingNumber: tracking);
         },
       ),
 
@@ -131,19 +138,25 @@ class _RouteErrorScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 56, color: Color(0xFFFF8508)),
+              const Icon(Icons.error_outline,
+                  size: 56, color: Color(0xFFFF8508)),
               const SizedBox(height: 16),
               const Text('We could not open that screen',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF08295D))),
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF08295D))),
               const SizedBox(height: 8),
               Text(location,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                  style:
+                      const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 icon: const Icon(Icons.home_outlined, size: 18),
                 label: const Text('Go home'),
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF8508)),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF8508)),
                 onPressed: () => context.go('/home'),
               ),
             ],

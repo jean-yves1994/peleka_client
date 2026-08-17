@@ -278,6 +278,8 @@ class _S extends ConsumerState<ProfileScreen> {
         _row(Icons.lock_outline, 'Change password', onTap: _pw),
         _row(Icons.notifications_outlined, 'Notifications',
             onTap: () => context.go('/notifications')),
+        _row(Icons.receipt_long_outlined, 'Billing & shipment history',
+            onTap: () => context.push('/billing')),
         const SizedBox(height: 20),
         _lbl('Support'),
         _row(Icons.help_outline, 'Help & support', onTap: () {}),

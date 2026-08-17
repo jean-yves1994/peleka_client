@@ -40,18 +40,6 @@ class AuthRepository {
     return _finish((await _api.post('/api/auth/register', body: b))['data']);
   }
 
-  // ─── Firebase Phone Auth ───
-  // The Flutter app runs Firebase Phone Auth on-device (Firebase sends the
-  // SMS and, on Android with Google Play Services, auto-fills the code).
-  // We forward the resulting Firebase ID token to the backend, which
-  // verifies it and returns Peleka JWTs. `fullName` is only needed when the
-  // phone number is brand new (backend creates the customer on the fly).
-  Future<User> exchangeFirebaseIdToken({required String idToken, String? fullName}) async {
-    final b = <String, dynamic>{'id_token': idToken};
-    if (fullName != null && fullName.trim().isNotEmpty) b['full_name'] = fullName.trim();
-    return _finish((await _api.post('/api/auth/firebase-phone', body: b))['data']);
-  }
-
   Future<User> updateProfile({String? fullName, String? phone, String? avatarUrl}) async {
     final b = <String, dynamic>{};
     if (fullName != null) b['full_name'] = fullName;
