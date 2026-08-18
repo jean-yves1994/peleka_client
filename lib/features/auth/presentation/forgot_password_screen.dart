@@ -120,16 +120,53 @@ class _PhoneResetScreenState extends ConsumerState<PhoneResetScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop())),
-    body: SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.fromLTRB(24, 8, 24, 24), child: Form(key: _form, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Enter verification code', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.navy)),
-      const SizedBox(height: 8),
-      Text('We sent a 6-digit code to ${_maskPhone(widget.phone)}. It expires in 5 minutes.', style: const TextStyle(fontSize: 13, color: AppColors.ink500)),
-      const SizedBox(height: 28),
-      PelekaTextField(label: 'Verification code', hint: '000000', controller: _code, prefixIcon: Icons.password_outlined, keyboardType: TextInputType.number, validator: (v) => RegExp(r'^\d{6}$').hasMatch((v ?? '').trim()) ? null : 'Enter the 6-digit code'),
-      if (_error != null) ...[const SizedBox(height: 12), _ErrorBox(message: _error!)],
-      const SizedBox(height: 24),
-      PelekaButton(label: 'Verify code', loading: _loading, onPressed: _verify),
-    ]))),
+    body: SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+        child: Form(
+          key: _form,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Enter verification code',
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.navy,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'We sent a 6-digit code to ${_maskPhone(widget.phone)}. It expires in 5 minutes.',
+                style: const TextStyle(fontSize: 13, color: AppColors.ink500),
+              ),
+              const SizedBox(height: 28),
+              PelekaTextField(
+                label: 'Verification code',
+                hint: '000000',
+                controller: _code,
+                prefixIcon: Icons.password_outlined,
+                keyboardType: TextInputType.number,
+                validator: (v) => RegExp(r'^\d{6}$').hasMatch((v ?? '').trim())
+                    ? null
+                    : 'Enter the 6-digit code',
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                _ErrorBox(message: _error!),
+              ],
+              const SizedBox(height: 24),
+              PelekaButton(
+                label: 'Verify code',
+                loading: _loading,
+                onPressed: _verify,
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
   );
 
   String _maskPhone(String p) {
@@ -170,18 +207,78 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.go('/login'))),
-    body: SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.fromLTRB(24, 8, 24, 24), child: Form(key: _form, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('Create a new password', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.navy)),
-      const SizedBox(height: 8),
-      const Text('Choose a new password for your Peleka account.', style: TextStyle(fontSize: 13, color: AppColors.ink500)),
-      const SizedBox(height: 28),
-      PelekaTextField(label: 'New password', hint: 'At least 8 chars, letter + number', controller: _pw, obscureText: _obscure, prefixIcon: Icons.lock_outline, suffix: IconButton(icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 18, color: AppColors.ink500), onPressed: () => setState(() => _obscure = !_obscure)), validator: (v) { if ((v ?? '').length < 8) return 'At least 8 characters'; if (!RegExp(r'[A-Za-z]').hasMatch(v!) || !RegExp(r'[0-9]').hasMatch(v)) return 'Must include a letter and a number'; return null; }),
-      const SizedBox(height: 14),
-      PelekaTextField(label: 'Confirm password', hint: 'Re-enter your password', controller: _cpw, obscureText: _obscure, prefixIcon: Icons.lock_reset_outlined, validator: (v) => (v ?? '') == _pw.text ? null : 'Passwords do not match'),
-      if (_error != null) ...[const SizedBox(height: 12), _ErrorBox(message: _error!)],
-      const SizedBox(height: 24),
-      PelekaButton(label: 'Reset password', loading: _loading, onPressed: _submit),
-    ]))),
+    body: SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+        child: Form(
+          key: _form,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Create a new password',
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.navy,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Choose a new password for your Peleka account.',
+                style: TextStyle(fontSize: 13, color: AppColors.ink500),
+              ),
+              const SizedBox(height: 28),
+              PelekaTextField(
+                label: 'New password',
+                hint: 'At least 8 chars, letter + number',
+                controller: _pw,
+                obscureText: _obscure,
+                prefixIcon: Icons.lock_outline,
+                suffix: IconButton(
+                  icon: Icon(
+                    _obscure
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    size: 18,
+                    color: AppColors.ink500,
+                  ),
+                  onPressed: () => setState(() => _obscure = !_obscure),
+                ),
+                validator: (v) {
+                  if ((v ?? '').length < 8) return 'At least 8 characters';
+                  if (!RegExp(r'[A-Za-z]').hasMatch(v!) ||
+                      !RegExp(r'[0-9]').hasMatch(v)) {
+                    return 'Must include a letter and a number';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 14),
+              PelekaTextField(
+                label: 'Confirm password',
+                hint: 'Re-enter your password',
+                controller: _cpw,
+                obscureText: _obscure,
+                prefixIcon: Icons.lock_reset_outlined,
+                validator: (v) =>
+                    (v ?? '') == _pw.text ? null : 'Passwords do not match',
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                _ErrorBox(message: _error!),
+              ],
+              const SizedBox(height: 24),
+              PelekaButton(
+                label: 'Reset password',
+                loading: _loading,
+                onPressed: _submit,
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
   );
 }
 

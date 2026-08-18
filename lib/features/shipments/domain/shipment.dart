@@ -52,7 +52,6 @@ class Shipment {
       this.parcelCategory,
       required this.parcelWeightKg,
       required this.isFragile,
-      required this.requiresSignature,
       required this.distanceKm,
       required this.totalPrice,
       this.discountAmount,
