@@ -46,6 +46,26 @@ class AuthRepository {
     return _finish((await _api.post('/api/auth/register', body: b))['data']);
   }
 
+  Future<String> requestPasswordReset(String identifier) async {
+    final data = await _api.post('/api/auth/forgot-password', body: {'identifier': identifier.trim()});
+    return (data['data']?['method'] ?? (identifier.contains('@') ? 'email' : 'phone')).toString();
+  }
+
+  Future<String> verifyPasswordResetPhone({required String phone, required String code}) async {
+    final data = await _api.post('/api/auth/password-reset/phone/verify', body: {
+      'phone': phone.trim(),
+      'code': code.trim(),
+    });
+    return data['data']['reset_token'].toString();
+  }
+
+  Future<void> resetPassword({required String token, required String password}) async {
+    await _api.post('/api/auth/reset-password', body: {
+      'token': token,
+      'password': password,
+    });
+  }
+
   Future<User> updateProfile({String? fullName, String? phone, String? avatarUrl}) async {
     final b = <String, dynamic>{};
     if (fullName != null) b['full_name'] = fullName;
