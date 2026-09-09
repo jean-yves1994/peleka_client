@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.peleka_client"
+    namespace = "com.peleka.client"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -22,7 +22,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.peleka_client"
+        applicationId = "com.peleka.client"
         minSdk = flutter.minSdkVersion                 // Firebase Auth requires 23+
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
