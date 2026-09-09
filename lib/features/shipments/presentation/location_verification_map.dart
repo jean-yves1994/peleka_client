@@ -37,6 +37,11 @@ class _LocationVerificationMapState extends State<LocationVerificationMap> {
     _mapController = MapController();
     _point = LatLng(widget.candidate.lat, widget.candidate.lng);
     _resolved = widget.candidate;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        widget.onChanged(_point.latitude, _point.longitude, widget.candidate.accuracyMeters);
+      }
+    });
   }
 
   Future<void> _movePin(LatLng point) async {
@@ -53,6 +58,8 @@ class _LocationVerificationMapState extends State<LocationVerificationMap> {
       setState(() {
         _resolved = place ?? _resolved;
       });
+    } catch (_) {
+      // The pin remains valid even when reverse geocoding temporarily fails.
     } finally {
       if (mounted) {
         setState(() {
@@ -72,9 +79,9 @@ class _LocationVerificationMapState extends State<LocationVerificationMap> {
       children: [
         Container(
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppColors.bg,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Row(
             children: [
@@ -135,7 +142,7 @@ class _LocationVerificationMapState extends State<LocationVerificationMap> {
                     ],
                   ),
                   RichAttributionWidget(
-                    attributions: [
+                    attributions: const [
                       TextSourceAttribution('OpenStreetMap contributors'),
                     ],
                   ),
