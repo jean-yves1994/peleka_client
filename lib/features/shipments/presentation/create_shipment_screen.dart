@@ -148,29 +148,24 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
       _currentLng = position.longitude;
       _currentAccuracy = position.accuracy;
 
-      final place = await ref.read(locationRepositoryProvider).reverse(position.latitude, position.longitude) ??
-          PlaceResult(name: 'Current location', address: 'Current location', lat: position.latitude, lng: position.longitude, accuracyMeters: position.accuracy);
-
-      final candidate = PlaceResult(
-        placeId: place.placeId,
-        name: place.name.isNotEmpty ? place.name : 'Current location',
-        address: place.address.isNotEmpty ? place.address : 'Current location',
+      // Current location is already an exact GPS point. Do not open the map
+      // verification UI; verify the GPS point directly with the backend.
+      final verified = await ref.read(locationRepositoryProvider).verify(
         lat: position.latitude,
         lng: position.longitude,
-        types: place.types,
-        district: place.district,
-        sector: place.sector,
         locationType: 'pickup',
-        source: 'gps',
-        confidence: 1,
+        inputText: 'Current location',
         accuracyMeters: position.accuracy,
       );
 
-      final verified = await _verifyCandidate(candidate, 'Pickup', 'pickup');
-      if (!mounted || verified == null) return;
+      if (!mounted) return;
       setState(() {
         _pickupPlace = verified.toMap();
-        _pickupAddressController.text = verified.address.isNotEmpty ? verified.address : verified.name;
+        _pickupAddressController.text = verified.address.isNotEmpty
+            ? verified.address
+            : verified.name.isNotEmpty
+                ? verified.name
+                : 'Current location';
         _pickupResults = <PlaceResult>[];
       });
     } catch (e) {
@@ -204,7 +199,7 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
     final form = _formKeys[_step].currentState;
     if (form == null || !form.validate()) return;
     if (_step == 0 && _pickupPlace == null) {
-      _showError('Select a pickup location and confirm it on the map.');
+      _showError('Select a pickup location.');
       return;
     }
     if (_step == 1 && _deliveryPlace == null) {
