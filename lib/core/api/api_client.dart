@@ -6,7 +6,7 @@ import '../storage/secure_storage.dart';
 
 const String kApiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'https://peleka-server.vercel.app',
+  defaultValue: 'https://peleka-backend.vercel.app/',
 );
 
 class ApiException implements Exception {
