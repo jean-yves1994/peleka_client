@@ -87,12 +87,22 @@ class LocationRepository {
       q['lat'] = lat;
       q['lng'] = lng;
     }
-    final r = await _api.get('/api/locations/search', query: q);
-    final data = r['data'];
-    final list = data is List
-        ? data
-        : (data is Map && data['places'] is List ? data['places'] : const []);
-    return list
+
+    final response = await _api.get('/api/locations/search', query: q);
+
+    // ApiClient.get() returns the decoded response envelope as a Map. The
+    // backend may return either data: [...] or data: { places: [...] }.
+    // Keep the intermediate value explicitly typed as List<dynamic> so Dart
+    // does not infer a dynamic return from List.map().toList().
+    final dynamic data = response['data'];
+    final List<dynamic> places = data is List
+        ? List<dynamic>.from(data)
+        : data is Map && data['places'] is List
+            ? List<dynamic>.from(data['places'] as List)
+            : <dynamic>[];
+
+    return places
+        .whereType<Map>()
         .map((e) => PlaceResult.fromJson(Map<String, dynamic>.from(e)))
         .toList();
   }
