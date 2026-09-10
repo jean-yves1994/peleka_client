@@ -22,66 +22,120 @@ class LocationVerificationMap extends StatefulWidget {
   });
 
   @override
-  State<LocationVerificationMap> createState() => _LocationVerificationMapState();
+  State<LocationVerificationMap> createState() =>
+      _LocationVerificationMapState();
 }
 
 class _LocationVerificationMapState extends State<LocationVerificationMap> {
   late final MapController _mapController;
+
   late LatLng _point;
   PlaceResult? _resolved;
+
   bool _resolving = false;
 
   @override
   void initState() {
     super.initState();
+
     _mapController = MapController();
-    _point = LatLng(widget.candidate.lat, widget.candidate.lng);
+
+    _point = LatLng(
+      widget.candidate.lat,
+      widget.candidate.lng,
+    );
+
     _resolved = widget.candidate;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        widget.onChanged(_point.latitude, _point.longitude, widget.candidate.accuracyMeters);
-      }
+      if (!mounted) return;
+
+      widget.onChanged(
+        _point.latitude,
+        _point.longitude,
+        widget.candidate.accuracyMeters,
+      );
     });
   }
 
-  Future<void> _movePin(LatLng point) async {
+  Future<void> _resolveLocation(LatLng point) async {
+    if (!mounted) return;
+
     setState(() {
       _point = point;
       _resolving = true;
     });
 
-    widget.onChanged(point.latitude, point.longitude, null);
+    // Immediately notify the parent of the new coordinates.
+    widget.onChanged(
+      point.latitude,
+      point.longitude,
+      null,
+    );
 
     try {
-      final place = await widget.onReverse(point.latitude, point.longitude);
+      final place = await widget.onReverse(
+        point.latitude,
+        point.longitude,
+      );
+
       if (!mounted) return;
-      setState(() {
-        _resolved = place ?? _resolved;
-      });
-    } catch (_) {
-      // The pin remains valid even when reverse geocoding temporarily fails.
-    } finally {
-      if (mounted) {
+
+      if (place != null) {
         setState(() {
-          _resolving = false;
+          _resolved = place;
         });
       }
+    } catch (_) {
+      // Keep the selected coordinates even when reverse
+      // geocoding temporarily fails.
+    } finally {
+      if (!mounted) return;
+
+      setState(() {
+        _resolving = false;
+      });
     }
+  }
+
+  void _handleMapEvent(MapEvent event) {
+    if (event is MapEventMoveEnd) {
+      final LatLng center = event.camera.center;
+
+      _resolveLocation(center);
+    }
+  }
+
+  void _moveToPoint(LatLng point) {
+    _mapController.move(
+      point,
+      _mapController.camera.zoom,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final label = (_resolved?.address.isNotEmpty == true)
+    final String label = (_resolved?.address.isNotEmpty == true)
         ? _resolved!.address
-        : (_resolved?.name.isNotEmpty == true ? _resolved!.name : 'Selected location');
+        : (_resolved?.name.isNotEmpty == true
+            ? _resolved!.name
+            : 'Selected location');
 
     return Column(
       children: [
+        // Header
         Container(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            14,
+            16,
+            12,
+          ),
           decoration: const BoxDecoration(
             color: AppColors.bg,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(20),
+            ),
           ),
           child: Row(
             children: [
@@ -92,22 +146,40 @@ class _LocationVerificationMapState extends State<LocationVerificationMap> {
                   color: AppColors.blueLight,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.location_on_outlined, color: AppColors.blue),
+                child: const Icon(
+                  Icons.location_on_outlined,
+                  color: AppColors.blue,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.navy)),
+                    Text(
+                      widget.title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.navy,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text(widget.subtitle, style: const TextStyle(fontSize: 12, color: AppColors.ink500)),
+                    Text(
+                      widget.subtitle,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.ink500,
+                      ),
+                    ),
                   ],
                 ),
               ),
             ],
           ),
         ),
+
+        // Map
         SizedBox(
           height: 360,
           child: Stack(
@@ -117,85 +189,144 @@ class _LocationVerificationMapState extends State<LocationVerificationMap> {
                 options: MapOptions(
                   initialCenter: _point,
                   initialZoom: 16,
-                  onTap: (_, point) => _movePin(point),
+
+                  // Listen for completed map movement.
+                  onMapEvent: _handleMapEvent,
+
+                  // Tapping anywhere on the map moves
+                  // the center pin to that location.
+                  onTap: (_, point) {
+                    _moveToPoint(point);
+                  },
                 ),
                 children: [
                   TileLayer(
-                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.example.peleka_customer',
-                  ),
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: _point,
-                        width: 52,
-                        height: 64,
-                        child: GestureDetector(
-                          onPanUpdate: (details) {
-                            final current = _mapController.camera.latLngToScreenPoint(_point);
-                            final next = current + details.delta;
-                            _movePin(_mapController.camera.screenPointToLatLng(next));
-                          },
-                          child: const Icon(Icons.location_pin, size: 52, color: AppColors.orange),
-                        ),
-                      ),
-                    ],
                   ),
                   RichAttributionWidget(
                     attributions: const [
-                      TextSourceAttribution('OpenStreetMap contributors'),
+                      TextSourceAttribution(
+                        'OpenStreetMap contributors',
+                      ),
                     ],
                   ),
                 ],
               ),
+
+              // Fixed center pin.
+              //
+              // The map moves underneath this pin.
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Center(
+                    child: Transform.translate(
+                      offset: const Offset(0, -26),
+                      child: const Icon(
+                        Icons.location_pin,
+                        size: 52,
+                        color: AppColors.orange,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Instruction badge.
               Positioned(
                 top: 14,
                 left: 14,
                 right: 14,
                 child: IgnorePointer(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 9,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      boxShadow: const [BoxShadow(blurRadius: 12, color: Colors.black12)],
+                      boxShadow: const [
+                        BoxShadow(
+                          blurRadius: 12,
+                          color: Colors.black12,
+                        ),
+                      ],
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.touch_app_outlined, size: 18, color: AppColors.blue),
+                        Icon(
+                          Icons.touch_app_outlined,
+                          size: 18,
+                          color: AppColors.blue,
+                        ),
                         SizedBox(width: 8),
-                        Expanded(child: Text('Tap the map or move the pin to the exact location.', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.navy))),
+                        Expanded(
+                          child: Text(
+                            'Move the map to position the pin on the exact location.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.navy,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
+
+              // Selected address.
               Positioned(
                 left: 14,
                 right: 14,
                 bottom: 14,
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: const [BoxShadow(blurRadius: 12, color: Colors.black12)],
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.place_outlined, size: 20, color: AppColors.blue),
-                      const SizedBox(width: 9),
-                      Expanded(
-                        child: Text(
-                          label,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.navy),
+                child: IgnorePointer(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: const [
+                        BoxShadow(
+                          blurRadius: 12,
+                          color: Colors.black12,
                         ),
-                      ),
-                      if (_resolving)
-                        const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.orange)),
-                    ],
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.place_outlined,
+                          size: 20,
+                          color: AppColors.blue,
+                        ),
+                        const SizedBox(width: 9),
+                        Expanded(
+                          child: Text(
+                            label,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.navy,
+                            ),
+                          ),
+                        ),
+                        if (_resolving)
+                          const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.orange,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
