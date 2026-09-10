@@ -22,8 +22,8 @@ android {
 
     defaultConfig {
         applicationId = "com.peleka.client"
-        minSdk = flutter.minSdkVersion                 // Firebase Auth requires 23+
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 23
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled = true
