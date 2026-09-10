@@ -1,4 +1,4 @@
-package com.example.peleka_client
+package com.peleka.client
 
 import io.flutter.embedding.android.FlutterActivity
 

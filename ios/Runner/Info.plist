@@ -4,7 +4,7 @@
 <dict>
 	<key>CFBundleDisplayName</key><string>Peleka</string>
 	<key>CFBundleName</key><string>peleka_client</string>
-	<key>CFBundleIdentifier</key><string>com.example.peleka_client</string>
+	<key>CFBundleIdentifier</key><string>com.peleka.client</string>
 	<key>CFBundleVersion</key><string>1</string>
 	<key>CFBundleShortVersionString</key><string>1.0.0</string>
 	<key>MinimumOSVersion</key><string>13.0</string>
