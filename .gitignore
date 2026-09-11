@@ -32,6 +32,8 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+# Ignore key.properties file which contains sensitive information
+key.properties
 
 # Symbolication related
 app.*.symbols
