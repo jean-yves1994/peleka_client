@@ -146,6 +146,7 @@ class _S extends ConsumerState<ProfileScreen> {
         _lbl('Support'),
         _row(Icons.help_outline, 'Help & support', onTap: () {}),
         _row(Icons.verified_user_outlined, 'Privacy policy', onTap: () => context.push('/privacy-policy')),
+        _row(Icons.delete_outline, 'Delete account', onTap: () => context.push('/delete-account')),
         _row(Icons.description_outlined, 'Terms of service', onTap: () {}),
         const SizedBox(height: 20),
         _row(Icons.logout, 'Sign out', color: AppColors.error, onTap: _logout),
