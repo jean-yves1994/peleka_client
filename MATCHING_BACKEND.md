@@ -1,14 +1,20 @@
 # Peleka Customer App – Backend Match
 
-This customer app is matched to the updated Peleka Next.js backend.
+This customer app is matched to the production Peleka backend.
 
 ## Backend base URL
 
 Build with:
 
 ```bash
-flutter run --dart-define=API_BASE_URL=https://peleka-server.vercel.app
+flutter run --dart-define=API_BASE_URL=https://server.pelekaapp.com
 ```
+
+## Production domains
+
+- Customer website: `https://www.pelekaapp.com`
+- Privacy Policy: `https://www.pelekaapp.com/privacy-policy`
+- Backend/API: `https://server.pelekaapp.com`
 
 ## Matched API capabilities
 
