@@ -6,7 +6,7 @@ import '../storage/secure_storage.dart';
 
 const String kApiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'https://peleka-backend.vercel.app/',
+  defaultValue: 'https://server.pelekaapp.com',
 );
 
 class ApiException implements Exception {
@@ -32,9 +32,6 @@ class ApiClient {
           contentType: 'application/json',
           responseType: ResponseType.json,
           headers: {
-            // ngrok free tier serves an HTML interstitial to anything that
-            // looks like a browser; this header skips it. Harmless elsewhere.
-            'ngrok-skip-browser-warning': 'true',
             'User-Agent': 'PelekaCustomerApp/1.0 (Dart; Flutter)',
           },
         )) {
@@ -54,7 +51,7 @@ class ApiClient {
             requestOptions: r.requestOptions,
             response: r,
             error: ApiException(
-              'Server returned an HTML page instead of JSON (tunnel warning page?). '
+              'Server returned an HTML page instead of JSON. '
               'Check the backend URL baked into this build.',
               status: r.statusCode,
               code: 'HTML_RESPONSE',
@@ -118,7 +115,6 @@ class ApiClient {
       final res = await Dio(BaseOptions(
         baseUrl: kApiBaseUrl,
         headers: {
-          'ngrok-skip-browser-warning': 'true',
           'User-Agent': 'PelekaCustomerApp/1.0 (Dart; Flutter)',
         },
       )).post('/api/auth/refresh', data: {'refresh_token': rt});
