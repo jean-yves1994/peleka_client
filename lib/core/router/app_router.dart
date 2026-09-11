@@ -17,6 +17,7 @@ import '../../features/shipments/presentation/quote_review_screen.dart';
 import '../../features/tracking/tracking_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/profile/privacy_policy_screen.dart';
+import '../../features/profile/delete_account_screen.dart';
 import '../../features/notifications/notifications_screen.dart';
 import '../../features/billing/billing_screen.dart';
 import '../../features/payments/presentation/payment_screen.dart';
@@ -73,6 +74,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(path: '/privacy-policy', builder: (_, __) => const PrivacyPolicyScreen()),
+      GoRoute(path: '/delete-account', builder: (_, __) => const DeleteAccountScreen()),
       GoRoute(path: '/shipments/create', builder: (_, __) => const CreateShipmentScreen()),
       GoRoute(path: '/shipments/quote', builder: (_, __) => const QuoteReviewScreen()),
       GoRoute(
