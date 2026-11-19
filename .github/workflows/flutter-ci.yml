@@ -22,6 +22,11 @@ jobs:
       - name: Analyze
         run: flutter analyze --no-pub --no-fatal-infos
       - name: Run tests
-        run: flutter test --no-pub
+        run: |
+          if [ -d test ]; then
+            flutter test --no-pub
+          else
+            echo "No Flutter test directory exists yet; skipping automated tests."
+          fi
       - name: Build debug APK
         run: flutter build apk --debug --no-pub
