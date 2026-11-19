@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api_client.dart';
+import '../../../core/storage/secure_storage.dart';
 import '../domain/shipment.dart';
 class ShipmentRepository {
   final ApiClient _api;
-  ShipmentRepository(this._api);
+  final SecureStorage _storage;
+  ShipmentRepository(this._api, this._storage);
   Future<Quote> quote({required double pickupLat, required double pickupLng, required double deliveryLat, required double deliveryLng, String? pickupCity, String? deliveryCity, String? discountCode}) async {
     final b = <String, dynamic>{'pickup_lat': pickupLat, 'pickup_lng': pickupLng, 'delivery_lat': deliveryLat, 'delivery_lng': deliveryLng};
     if (pickupCity != null) b['pickup_city'] = pickupCity; if (deliveryCity != null) b['delivery_city'] = deliveryCity;
@@ -14,6 +16,21 @@ class ShipmentRepository {
     final d = Map<String, dynamic>.from((await _api.post('/api/shipments', body: b))['data']);
     return Shipment.fromJson(d);
   }
+  Future<({Shipment shipment, String token})> createGuest(Map<String, dynamic> body) async {
+    final guestBody = <String, dynamic>{
+      ...body,
+      'guest_name': body['sender_name'],
+      'guest_phone': body['sender_phone'],
+    };
+    final response = await _api.post('/api/guest/shipments', body: guestBody);
+    final data = Map<String, dynamic>.from(response['data']);
+    final token = data.remove('guest_access_token')?.toString() ?? '';
+    final shipment = Shipment.fromJson(data);
+    if (token.isEmpty) throw ApiException('We could not secure access to your shipment. Please try again.');
+    await _storage.writeGuestToken(shipment.id, token);
+    return (shipment: shipment, token: token);
+  }
+
   Future<List<Shipment>> myShipments({int page = 1, int pageSize = 20, String? status}) async {
     final q = <String, dynamic>{'page': page, 'pageSize': pageSize}; if (status != null) q['status'] = status;
     final r = await _api.get('/api/shipments', query: q);
@@ -25,4 +42,4 @@ class ShipmentRepository {
   Future<Map<String, dynamic>> contact(String id) async => Map<String, dynamic>.from((await _api.get('/api/shipments/$id/contact'))['data']);
   Future<Map<String, dynamic>> track(String id) async => Map<String, dynamic>.from((await _api.get('/api/shipments/$id/track'))['data']);
 }
-final shipmentRepositoryProvider = Provider<ShipmentRepository>((ref) => ShipmentRepository(ref.watch(apiClientProvider)));
+final shipmentRepositoryProvider = Provider<ShipmentRepository>((ref) => ShipmentRepository(ref.watch(apiClientProvider), ref.watch(secureStorageProvider)));
