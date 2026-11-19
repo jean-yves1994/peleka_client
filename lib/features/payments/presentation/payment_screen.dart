@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/api/api_client.dart';
 import '../../../core/widgets/format.dart';
 import '../../../core/widgets/peleka_button.dart';
 import '../../../core/widgets/peleka_card.dart';
@@ -98,7 +99,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       if (!mounted) return;
       setState(() {
         _phase = _Phase.failed;
-        _error = e.toString().replaceAll('ApiException: ', '');
+        _error = friendlyErrorMessage(e, fallback: 'We could not start the payment. Please try again.');
       });
     }
   }
