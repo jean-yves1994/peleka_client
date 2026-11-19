@@ -51,7 +51,6 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
   bool _deliverySearching = false;
   double? _currentLat;
   double? _currentLng;
-  double? _currentAccuracy;
 
   String _category = 'documents';
   bool _fragile = false;
@@ -147,7 +146,6 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
       final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       _currentLat = position.latitude;
       _currentLng = position.longitude;
-      _currentAccuracy = position.accuracy;
 
       // Current location is already an exact GPS point. Do not open the map
       // verification UI; verify the GPS point directly with the backend.
