@@ -31,6 +31,13 @@ class ShipmentRepository {
     return (shipment: shipment, token: token);
   }
 
+  Future<Map<String, dynamic>> guestDetail(String id) async {
+    final token = await _storage.readGuestToken(id);
+    if (token == null || token.isEmpty) throw ApiException('Guest shipment access has expired. Please contact Peleka support.');
+    final response = await _api.get('/api/guest/shipments/$id', headers: {'x-guest-access-token': token});
+    return Map<String, dynamic>.from(response['data']['shipment']);
+  }
+
   Future<List<Shipment>> myShipments({int page = 1, int pageSize = 20, String? status}) async {
     final q = <String, dynamic>{'page': page, 'pageSize': pageSize}; if (status != null) q['status'] = status;
     final r = await _api.get('/api/shipments', query: q);
