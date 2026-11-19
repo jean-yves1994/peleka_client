@@ -31,8 +31,13 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final auth = ref.read(authViewModelProvider);
       final loc = state.matchedLocation;
-      const authRoutes = ['/login', '/register', '/onboarding'];
+      const authRoutes = [
+        '/login', '/register', '/onboarding', '/forgot-password',
+        '/forgot-password/email', '/forgot-password/phone', '/reset-password',
+      ];
+      const guestRoutes = ['/shipments/create', '/shipments/quote', '/pay'];
       final isAuthRoute = authRoutes.contains(loc);
+      final isGuestRoute = guestRoutes.contains(loc);
       final onSplash = loc == '/splash';
 
       if (loc == '/') {
@@ -46,7 +51,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
       if (onSplash) return auth.onboardingSeen ? '/login' : '/onboarding';
-      if (!isAuthRoute) return '/login';
+      if (!isAuthRoute && !isGuestRoute) return '/login';
       return null;
     },
     routes: [
@@ -83,7 +88,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           final q = s.uri.queryParameters;
           final shipmentId = q['shipmentId'] ?? q['shipmentid'] ?? '';
           final tracking = q['trackingNumber'] ?? q['trackingnumber'] ?? '';
-          return PaymentScreen(shipmentId: shipmentId, trackingNumber: tracking);
+          final guest = q['guest'] == 'true';
+          return PaymentScreen(shipmentId: shipmentId, trackingNumber: tracking, guest: guest);
         },
       ),
       GoRoute(path: '/shipments/:id', builder: (_, s) => ShipmentDetailScreen(id: s.pathParameters['id']!)),
