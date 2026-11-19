@@ -81,7 +81,7 @@ class _S extends ConsumerState<ShipmentsListScreen> {
             color: AppColors.orange,
             child: a.when(
               loading: () => const Center(child: CircularProgressIndicator(color: AppColors.orange)),
-              error: (e, _) => Center(child: Text('Failed: $e')),
+              error: (e, _) => const Center(child: Text('Unable to load your shipments. Please try again.')),
               data: (rows) {
                 if (rows.isEmpty) {
                   return ListView(children: const [
