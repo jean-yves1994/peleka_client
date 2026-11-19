@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/api/api_client.dart';
 import '../../../core/widgets/peleka_button.dart';
 import '../../../core/widgets/peleka_text_field.dart';
 import '../data/auth_repository.dart';
