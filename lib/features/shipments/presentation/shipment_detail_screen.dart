@@ -59,7 +59,7 @@ class ShipmentDetailScreen extends ConsumerWidget {
         error: (e, _) => Center(
           child: Padding(
               padding: const EdgeInsets.all(24),
-              child: Text('Could not load shipment.\n\n$e',
+              child: const Text('Could not load this shipment. Please check your connection and try again.',
                   textAlign: TextAlign.center)),
         ),
         data: (d) {
