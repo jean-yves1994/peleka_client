@@ -71,7 +71,7 @@ class AuthViewModel extends StateNotifier<AuthState> {
       state = state.copyWith(status: AuthStatus.authenticated, user: u, loading: false);
       return true;
     } catch (e) {
-      state = state.copyWith(loading: false, error: e.toString().replaceAll('ApiException: ', ''));
+      state = state.copyWith(loading: false, error: friendlyErrorMessage(e, fallback: 'We could not complete sign-in. Please check your details and try again.'));
       return false;
     }
   }
