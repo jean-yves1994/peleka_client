@@ -7,6 +7,7 @@ import '../../../core/widgets/peleka_button.dart';
 import '../../../core/widgets/peleka_card.dart';
 import '../../../core/widgets/peleka_text_field.dart';
 import '../data/shipment_repository.dart';
+import '../../auth/presentation/auth_view_model.dart';
 import 'shipments_view_model.dart';
 
 /// Review & pay.
@@ -63,9 +64,11 @@ class _S extends ConsumerState<QuoteReviewScreen> {
   Future<void> _confirmAndPay() async {
     setState(() => _confirming = true);
     try {
-      final s = await ref.read(shipmentRepositoryProvider).create(
-            ref.read(draftProvider).toCreateBody(),
-          );
+      final draft = ref.read(draftProvider);
+      final isGuest = ref.read(authViewModelProvider).status != AuthStatus.authenticated;
+      final s = isGuest
+          ? (await ref.read(shipmentRepositoryProvider).createGuest(draft.toCreateBody())).shipment
+          : await ref.read(shipmentRepositoryProvider).create(draft.toCreateBody());
       ref.invalidate(myShipmentsProvider);
       if (!mounted) return;
 
@@ -75,7 +78,7 @@ class _S extends ConsumerState<QuoteReviewScreen> {
       // Standard customers pay before dispatch. Premier customers are placed
       // on invoice terms and can be assigned immediately.
       if (s.paymentRequired) {
-        context.go('/pay?shipmentId=${s.id}&trackingNumber=${Uri.encodeComponent(s.trackingNumber)}');
+        context.go('/pay?shipmentId=${s.id}&trackingNumber=${Uri.encodeComponent(s.trackingNumber)}${isGuest ? '&guest=true' : ''}');
       } else {
         context.go('/shipments/${s.id}');
       }
