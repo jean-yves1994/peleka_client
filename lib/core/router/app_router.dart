@@ -13,6 +13,7 @@ import '../../features/home/home_screen.dart';
 import '../../features/shipments/presentation/shipments_list_screen.dart';
 import '../../features/shipments/presentation/shipment_detail_screen.dart';
 import '../../features/shipments/presentation/create_shipment_screen.dart';
+import '../../features/shipments/presentation/guest_shipment_screen.dart';
 import '../../features/shipments/presentation/quote_review_screen.dart';
 import '../../features/tracking/tracking_screen.dart';
 import '../../features/profile/profile_screen.dart';
@@ -36,6 +37,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/forgot-password/email', '/forgot-password/phone', '/reset-password',
       ];
       const guestRoutes = ['/shipments/create', '/shipments/quote', '/pay'];
+      final isGuestShipment = loc.startsWith('/guest/shipment/');
       final isAuthRoute = authRoutes.contains(loc);
       final isGuestRoute = guestRoutes.contains(loc);
       final onSplash = loc == '/splash';
@@ -51,7 +53,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
       if (onSplash) return auth.onboardingSeen ? '/login' : '/onboarding';
-      if (!isAuthRoute && !isGuestRoute) return '/login';
+      if (!isAuthRoute && !isGuestRoute && !isGuestShipment) return '/login';
       return null;
     },
     routes: [
@@ -81,6 +83,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/privacy-policy', builder: (_, __) => const PrivacyPolicyScreen()),
       GoRoute(path: '/delete-account', builder: (_, __) => const DeleteAccountScreen()),
       GoRoute(path: '/shipments/create', builder: (_, __) => const CreateShipmentScreen()),
+      GoRoute(path: '/guest/shipment/:id', builder: (_, s) => GuestShipmentScreen(id: s.pathParameters['id']!)),
       GoRoute(path: '/shipments/quote', builder: (_, __) => const QuoteReviewScreen()),
       GoRoute(
         path: '/pay',
