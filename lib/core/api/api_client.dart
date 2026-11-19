@@ -19,6 +19,9 @@ class ApiException implements Exception {
   String toString() => message;
 }
 
+String friendlyErrorMessage(Object error, {String fallback = 'Something went wrong. Please try again.'}) =>
+    error is ApiException ? error.message : fallback;
+
 class ApiClient {
   final Dio dio;
   final SecureStorage _st;
