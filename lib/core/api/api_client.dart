@@ -160,10 +160,10 @@ class ApiClient {
   }
 
   Future<Map<String, dynamic>> get(String p,
-          {Map<String, dynamic>? query}) async =>
-      _u(await dio.get(p, queryParameters: query));
-  Future<Map<String, dynamic>> post(String p, {Object? body}) async =>
-      _u(await dio.post(p, data: body));
+          {Map<String, dynamic>? query, Map<String, dynamic>? headers}) async =>
+      _u(await dio.get(p, queryParameters: query, options: Options(headers: headers)));
+  Future<Map<String, dynamic>> post(String p, {Object? body, Map<String, dynamic>? headers}) async =>
+      _u(await dio.post(p, data: body, options: Options(headers: headers)));
   Future<Map<String, dynamic>> patch(String p, {Object? body}) async =>
       _u(await dio.patch(p, data: body));
   Future<Map<String, dynamic>> delete(String p) async =>
