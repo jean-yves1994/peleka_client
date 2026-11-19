@@ -49,6 +49,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return onSplash ? null : '/splash';
       }
       if (auth.status == AuthStatus.authenticated) {
+        if (loc == '/reset-password') return null;
         if (onSplash || isAuthRoute) return '/home';
         return null;
       }
