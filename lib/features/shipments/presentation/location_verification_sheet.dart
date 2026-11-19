@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/api/api_client.dart';
 import '../../../core/widgets/peleka_button.dart';
 import '../data/location_repository.dart';
 import 'location_verification_map.dart';
@@ -41,7 +42,7 @@ Future<PlaceResult?> showLocationVerificationSheet({
               if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(e.toString().replaceAll('ApiException: ', '')),
+                  content: Text(friendlyErrorMessage(e, fallback: 'We could not verify this location. Please try again.')),
                   backgroundColor: AppColors.error,
                 ),
               );
