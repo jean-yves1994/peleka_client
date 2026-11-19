@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/api/api_client.dart';
 import '../../../core/widgets/peleka_button.dart';
 import '../../../core/widgets/peleka_card.dart';
 import '../../../core/widgets/peleka_text_field.dart';
@@ -94,7 +95,7 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
         final results = await ref.read(locationRepositoryProvider).search(q, lat: _currentLat, lng: _currentLng);
         if (mounted) setState(() => _pickupResults = results);
       } catch (e) {
-        if (mounted) _showError(e.toString().replaceAll('ApiException: ', ''));
+        if (mounted) _showError(friendlyErrorMessage(e, fallback: 'We could not complete this step. Please check your details and try again.'));
       } finally {
         if (mounted) setState(() => _pickupSearching = false);
       }
