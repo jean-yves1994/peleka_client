@@ -185,9 +185,11 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                 secondaryLabel: widget.shipmentId.trim().isEmpty
                     ? 'Back to shipments'
                     : 'Back to shipment',
-                onSecondary: () => widget.shipmentId.trim().isEmpty
-                    ? context.go('/shipments')
-                    : context.go('/shipments/${widget.shipmentId}'),
+                onSecondary: () => widget.guest
+                    ? context.go('/guest/shipment/${widget.shipmentId}')
+                    : widget.shipmentId.trim().isEmpty
+                        ? context.go('/login')
+                        : context.go('/shipments/${widget.shipmentId}'),
               ),
           },
         ),
@@ -300,12 +302,16 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
 
   Future<void> _confirmLeave() async {
     if (_phase == _Phase.success) {
-      context.go('/shipments/${widget.shipmentId}');
+      context.go(widget.guest ? '/guest/shipment/${widget.shipmentId}' : '/shipments/${widget.shipmentId}');
       return;
     }
     if (_phase == _Phase.enterPhone || _phase == _Phase.failed) {
+      if (widget.guest) {
+        context.go('/guest/shipment/${widget.shipmentId}');
+        return;
+      }
       if (widget.shipmentId.trim().isEmpty) {
-        context.go('/shipments');
+        context.go('/login');
       } else {
         context.go('/shipments/${widget.shipmentId}');
       }
