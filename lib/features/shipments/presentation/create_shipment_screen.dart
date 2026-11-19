@@ -170,7 +170,7 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
         _pickupResults = <PlaceResult>[];
       });
     } catch (e) {
-      if (mounted) _showError(e.toString().replaceAll('ApiException: ', ''));
+      if (mounted) _showError(friendlyErrorMessage(e, fallback: 'We could not complete this step. Please check your details and try again.'));
     } finally {
       if (mounted) setState(() => _locating = false);
     }
@@ -264,7 +264,7 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
       ref.read(draftProvider.notifier).state = draft;
       if (mounted) context.push('/shipments/quote');
     } catch (e) {
-      if (mounted) _showError(e.toString().replaceAll('ApiException: ', ''));
+      if (mounted) _showError(friendlyErrorMessage(e, fallback: 'We could not complete this step. Please check your details and try again.'));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
