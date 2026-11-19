@@ -16,7 +16,7 @@ class NotificationsScreen extends ConsumerWidget {
     return Scaffold(backgroundColor: AppColors.bg, appBar: AppBar(title: const Text('Notifications'),
       actions: [IconButton(icon: const Icon(Icons.done_all), tooltip: 'Mark all read', onPressed: () async { try { await ref.read(apiClientProvider).patch('/api/me/notifications', body: {}); ref.invalidate(_np); } catch (_) {} })]),
       body: RefreshIndicator(color: AppColors.orange, onRefresh: () async => ref.invalidate(_np), child: a.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.orange)), error: (e, _) => Center(child: Text('Failed: $e')),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.orange)), error: (e, _) => const Center(child: Text('Unable to load notifications. Please try again.')),
         data: (rows) {
           if (rows.isEmpty) return ListView(children: const [SizedBox(height: 100), Center(child: Icon(Icons.notifications_none, size: 48, color: AppColors.ink400)),
             SizedBox(height: 12), Center(child: Text('No notifications', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.navy))),
