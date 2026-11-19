@@ -61,7 +61,7 @@ class _S extends ConsumerState<TrackingScreen> {
         body: a.when(
             loading: () => const Center(
                 child: CircularProgressIndicator(color: AppColors.orange)),
-            error: (e, _) => Center(child: Text('Error: $e')),
+            error: (e, _) => const Center(child: Text('Unable to load tracking information. Please try again.')),
             data: (d) {
               final s = d.shipment;
               final pickup = LatLng(s.pickupLat, s.pickupLng);
