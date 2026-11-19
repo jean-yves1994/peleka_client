@@ -35,7 +35,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         context.push('/forgot-password/email');
       }
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString().replaceAll(RegExp(r'^ApiException\([^)]*\):\s*'), ''));
+      if (mounted) setState(() => _error = friendlyErrorMessage(e, fallback: 'We could not process password recovery. Please try again.'));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -126,7 +126,7 @@ class _PhoneResetScreenState extends ConsumerState<PhoneResetScreen> {
       final token = await ref.read(authRepositoryProvider).verifyPasswordResetPhone(phone: widget.phone, code: _code.text.trim());
       if (mounted) context.push('/reset-password', extra: token);
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString().replaceAll(RegExp(r'^ApiException\([^)]*\):\s*'), ''));
+      if (mounted) setState(() => _error = friendlyErrorMessage(e, fallback: 'We could not process password recovery. Please try again.'));
     } finally { if (mounted) setState(() => _loading = false); }
   }
 
@@ -221,7 +221,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         context.go('/login');
       }
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString().replaceAll(RegExp(r'^ApiException\([^)]*\):\s*'), ''));
+      if (mounted) setState(() => _error = friendlyErrorMessage(e, fallback: 'We could not process password recovery. Please try again.'));
     } finally { if (mounted) setState(() => _loading = false); }
   }
 
