@@ -10,6 +10,19 @@ class SecureStorage {
   static const _kA = 'peleka.access_token';
   static const _kR = 'peleka.refresh_token';
   static const _kU = 'peleka.user';
+  String _guestKey(String shipmentId) => 'peleka.guest.$shipmentId';
+
+  Future<void> writeGuestToken(String shipmentId, String token) async {
+    await _s.write(key: _guestKey(shipmentId), value: token);
+  }
+
+  Future<String?> readGuestToken(String shipmentId) async {
+    return _s.read(key: _guestKey(shipmentId));
+  }
+
+  Future<void> clearGuestToken(String shipmentId) async {
+    await _s.delete(key: _guestKey(shipmentId));
+  }
   Future<String?> readAccessToken() async {
     try {
       return await _s.read(key: _kA);
