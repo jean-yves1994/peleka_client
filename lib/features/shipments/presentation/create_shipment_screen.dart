@@ -116,7 +116,7 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
         final results = await ref.read(locationRepositoryProvider).search(q, lat: _currentLat, lng: _currentLng);
         if (mounted) setState(() => _deliveryResults = results);
       } catch (e) {
-        if (mounted) _showError(e.toString().replaceAll('ApiException: ', ''));
+        if (mounted) _showError(friendlyErrorMessage(e, fallback: 'We could not complete this step. Please check your details and try again.'));
       } finally {
         if (mounted) setState(() => _deliverySearching = false);
       }
