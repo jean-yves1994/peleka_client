@@ -130,7 +130,16 @@ class _S extends ConsumerState<LoginScreen> {
                               label: 'Sign in',
                               loading: a.loading,
                               onPressed: _submit),
-                          const SizedBox(height: 28),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              icon: const Icon(Icons.local_shipping_outlined),
+                              label: const Text('Continue as Guest'),
+                              onPressed: () => context.go('/shipments/create'),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
                           Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

@@ -13,7 +13,7 @@ class BillingScreen extends ConsumerWidget {
     final b = ref.watch(billingProvider);
     return Scaffold(backgroundColor: AppColors.bg, appBar: AppBar(title: const Text('Billing & history')), body: b.when(
       loading: ()=>const Center(child:CircularProgressIndicator(color:AppColors.orange)),
-      error:(e,_)=>Center(child:Padding(padding:const EdgeInsets.all(24),child:Text('Could not load billing: $e'))),
+      error:(e,_)=>const Center(child:Padding(padding:EdgeInsets.all(24),child:Text('Could not load billing information. Please try again.'))),
       data:(x)=>RefreshIndicator(color:AppColors.orange,onRefresh:()=>ref.refresh(billingProvider.future),child:ListView(padding:const EdgeInsets.all(20),children:[
         if (x.isPremier) ...[
           PelekaCard(color:AppColors.navyLight,child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[

@@ -102,9 +102,21 @@ class _PhoneResetScreenState extends ConsumerState<PhoneResetScreen> {
   final _form = GlobalKey<FormState>();
   final _code = TextEditingController();
   bool _loading = false;
+  bool _resending = false;
   String? _error;
+  String? _notice;
   @override
   void dispose() { _code.dispose(); super.dispose(); }
+
+  Future<void> _resend() async {
+    setState(() { _resending = true; _error = null; _notice = null; });
+    try {
+      await ref.read(authRepositoryProvider).requestPasswordReset(widget.phone);
+      if (mounted) setState(() => _notice = 'If the number is registered, a new verification code has been sent.');
+    } catch (_) {
+      if (mounted) setState(() => _error = 'We could not send a new code. Please try again shortly.');
+    } finally { if (mounted) setState(() => _resending = false); }
+  }
 
   Future<void> _verify() async {
     if (!_form.currentState!.validate()) return;
@@ -156,7 +168,12 @@ class _PhoneResetScreenState extends ConsumerState<PhoneResetScreen> {
                 const SizedBox(height: 12),
                 _ErrorBox(message: _error!),
               ],
-              const SizedBox(height: 24),
+              if (_notice != null) ...[
+                const SizedBox(height: 12),
+                Text(_notice!, style: const TextStyle(color: AppColors.success, fontSize: 12)),
+              ],
+              Align(alignment: Alignment.centerRight, child: TextButton(onPressed: _resending ? null : _resend, child: Text(_resending ? 'Sending…' : 'Resend code'))),
+              const SizedBox(height: 16),
               PelekaButton(
                 label: 'Verify code',
                 loading: _loading,
@@ -198,7 +215,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     setState(() { _loading = true; _error = null; });
     try {
       await ref.read(authRepositoryProvider).resetPassword(token: widget.token, password: _pw.text);
-      if (mounted) context.go('/login');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Your password has been reset. Please sign in.'), backgroundColor: AppColors.success));
+        context.go('/login');
+      }
     } catch (e) {
       if (mounted) setState(() => _error = e.toString().replaceAll(RegExp(r'^ApiException\([^)]*\):\s*'), ''));
     } finally { if (mounted) setState(() => _loading = false); }

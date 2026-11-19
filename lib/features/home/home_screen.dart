@@ -106,7 +106,7 @@ class HomeScreen extends ConsumerWidget {
                               child: Center(
                                   child: CircularProgressIndicator(
                                       color: AppColors.orange))),
-                          error: (e, _) => Text('Failed to load: $e',
+                          error: (e, _) => const Text('Unable to load this information. Please try again.',
                               style: const TextStyle(color: AppColors.error)),
                           data: (rows) {
                             if (rows.isEmpty)

@@ -16,7 +16,7 @@ class ApiException implements Exception {
   final Map<String, dynamic>? details;
   ApiException(this.message, {this.status, this.code, this.details});
   @override
-  String toString() => 'ApiException($status $code): $message';
+  String toString() => message;
 }
 
 class ApiClient {
@@ -81,16 +81,29 @@ class ApiClient {
         final d = err.response?.data;
         final e = d is Map ? d['error'] as Map? : null;
         String msg;
-        if (e?['message'] != null) {
-          msg = e!['message'].toString();
-        } else if (err.type == DioExceptionType.connectionError ||
-            err.type == DioExceptionType.connectionTimeout) {
-          msg = 'Cannot reach the server at ${req.baseUrl}. '
-              'Is the backend running and the URL still valid?';
+        final status = err.response?.statusCode;
+        final serverMessage = e?['message'];
+        if (err.type == DioExceptionType.connectionError ||
+            err.type == DioExceptionType.connectionTimeout ||
+            err.type == DioExceptionType.receiveTimeout ||
+            err.type == DioExceptionType.sendTimeout) {
+          msg = 'Unable to connect right now. Check your internet connection and try again.';
         } else if (d is String && d.trimLeft().startsWith('<')) {
-          msg = 'Server returned an HTML page instead of JSON.';
+          msg = 'We are having trouble reaching Peleka. Please try again shortly.';
+        } else if (status == 401) {
+          msg = 'Your session has expired or your sign-in details are incorrect. Please sign in again.';
+        } else if (status == 403) {
+          msg = 'You do not have permission to complete this action.';
+        } else if (status == 404) {
+          msg = 'We could not find the requested information.';
+        } else if (status == 409) {
+          msg = 'This action cannot be completed because the information has changed. Refresh and try again.';
+        } else if (status == 422 || status == 400) {
+          msg = _friendlyValidation(serverMessage);
+        } else if (status != null && status >= 500) {
+          msg = 'We are having trouble processing your request. Please try again shortly.';
         } else {
-          msg = err.message ?? 'Network error';
+          msg = 'Something went wrong. Please try again.';
         }
 
         h.reject(DioException(
@@ -134,15 +147,39 @@ class ApiClient {
     }
   }
 
+  String _friendlyValidation(dynamic value) {
+    final raw = value is List ? value.join(' ') : value?.toString() ?? '';
+    final lower = raw.toLowerCase();
+    if (lower.contains('password')) return 'Please check your password and try again.';
+    if (lower.contains('phone')) return 'Please check the phone number and try again.';
+    if (lower.contains('email')) return 'Please check the email address and try again.';
+    if (lower.contains('location') || lower.contains('coordinate')) return 'Please check the pickup and delivery locations.';
+    if (lower.contains('discount') || lower.contains('promo')) return 'That promo code could not be applied. Check it and try again.';
+    if (lower.contains('required') || lower.contains('invalid') || lower.contains('must')) return 'Some information is missing or invalid. Please review your entries.';
+    return 'Please check the information entered and try again.';
+  }
+
+  Future<Response> _request(Future<Response> Function() call) async {
+    try {
+      return await call();
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw ApiException('Something went wrong. Please try again.',
+          status: e.response?.statusCode);
+    } catch (_) {
+      throw ApiException('Something went wrong. Please try again.');
+    }
+  }
+
   Future<Map<String, dynamic>> get(String p,
-          {Map<String, dynamic>? query}) async =>
-      _u(await dio.get(p, queryParameters: query));
-  Future<Map<String, dynamic>> post(String p, {Object? body}) async =>
-      _u(await dio.post(p, data: body));
+          {Map<String, dynamic>? query, Map<String, dynamic>? headers}) async =>
+      _u(await _request(() => dio.get(p, queryParameters: query, options: Options(headers: headers))));
+  Future<Map<String, dynamic>> post(String p, {Object? body, Map<String, dynamic>? headers}) async =>
+      _u(await _request(() => dio.post(p, data: body, options: Options(headers: headers))));
   Future<Map<String, dynamic>> patch(String p, {Object? body}) async =>
-      _u(await dio.patch(p, data: body));
+      _u(await _request(() => dio.patch(p, data: body)));
   Future<Map<String, dynamic>> delete(String p) async =>
-      _u(await dio.delete(p));
+      _u(await _request(() => dio.delete(p)));
   Map<String, dynamic> _u(Response r) => r.data is Map<String, dynamic>
       ? r.data
       : {'success': true, 'data': r.data};

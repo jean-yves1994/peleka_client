@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/api_client.dart';
+import '../../../core/storage/secure_storage.dart';
 
 /// Result of pushing a Mobile Money charge to the customer's phone.
 class PaymentInit {
@@ -37,14 +38,20 @@ class PaymentInit {
 
 class PaymentRepository {
   final ApiClient _api;
-  PaymentRepository(this._api);
+  final SecureStorage _storage;
+  PaymentRepository(this._api, this._storage);
 
   /// Push a Mobile Money charge (Request-to-Pay) for a shipment that is in
   /// `pending_payment`. [phone] is optional — the backend falls back to the
   /// phone on the customer's account.
-  Future<PaymentInit> initiatePaypack(String shipmentId, {String? phone}) async {
+  Future<PaymentInit> initiatePaypack(String shipmentId, {String? phone, bool guest = false}) async {
     final body = <String, dynamic>{'shipment_id': shipmentId};
     if (phone != null && phone.trim().isNotEmpty) body['phone'] = phone.trim();
+    if (guest) {
+      final token = await _storage.readGuestToken(shipmentId);
+      if (token == null || token.isEmpty) throw ApiException('Guest shipment access has expired. Please create a new shipment.');
+      body['guest_access_token'] = token;
+    }
     final res = await _api.post('/api/payments/paypack/initiate', body: body);
     return PaymentInit.fromJson(Map<String, dynamic>.from(res['data']));
   }
@@ -52,12 +59,18 @@ class PaymentRepository {
   /// Poll a payment's status: 'pending' | 'paid' | 'failed'.
   /// The backend also does a live Paypack lookup while still pending, so this
   /// settles even if the webhook is delayed.
-  Future<String> status(String paymentId) async {
+  Future<String> status(String paymentId, {String? shipmentId, bool guest = false}) async {
+    if (guest) {
+      final token = await _storage.readGuestToken(shipmentId ?? '');
+      if (token == null || token.isEmpty) throw ApiException('Guest shipment access has expired.');
+      final res = await _api.get('/api/guest/payments/$paymentId', headers: {'x-guest-access-token': token});
+      return (res['data']?['status'] ?? 'pending').toString();
+    }
     final res = await _api.get('/api/payments/$paymentId');
     return (res['data']?['status'] ?? 'pending').toString();
   }
 }
 
 final paymentRepositoryProvider = Provider<PaymentRepository>(
-  (ref) => PaymentRepository(ref.watch(apiClientProvider)),
+  (ref) => PaymentRepository(ref.watch(apiClientProvider), ref.watch(secureStorageProvider)),
 );

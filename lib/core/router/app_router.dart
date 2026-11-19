@@ -13,6 +13,7 @@ import '../../features/home/home_screen.dart';
 import '../../features/shipments/presentation/shipments_list_screen.dart';
 import '../../features/shipments/presentation/shipment_detail_screen.dart';
 import '../../features/shipments/presentation/create_shipment_screen.dart';
+import '../../features/shipments/presentation/guest_shipment_screen.dart';
 import '../../features/shipments/presentation/quote_review_screen.dart';
 import '../../features/tracking/tracking_screen.dart';
 import '../../features/profile/profile_screen.dart';
@@ -31,8 +32,14 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final auth = ref.read(authViewModelProvider);
       final loc = state.matchedLocation;
-      const authRoutes = ['/login', '/register', '/onboarding'];
+      const authRoutes = [
+        '/login', '/register', '/onboarding', '/forgot-password',
+        '/forgot-password/email', '/forgot-password/phone', '/reset-password',
+      ];
+      const guestRoutes = ['/shipments/create', '/shipments/quote', '/pay'];
+      final isGuestShipment = loc.startsWith('/guest/shipment/');
       final isAuthRoute = authRoutes.contains(loc);
+      final isGuestRoute = guestRoutes.contains(loc);
       final onSplash = loc == '/splash';
 
       if (loc == '/') {
@@ -42,11 +49,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         return onSplash ? null : '/splash';
       }
       if (auth.status == AuthStatus.authenticated) {
+        if (loc == '/reset-password') return null;
         if (onSplash || isAuthRoute) return '/home';
         return null;
       }
       if (onSplash) return auth.onboardingSeen ? '/login' : '/onboarding';
-      if (!isAuthRoute) return '/login';
+      if (!isAuthRoute && !isGuestRoute && !isGuestShipment) return '/login';
       return null;
     },
     routes: [
@@ -76,6 +84,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/privacy-policy', builder: (_, __) => const PrivacyPolicyScreen()),
       GoRoute(path: '/delete-account', builder: (_, __) => const DeleteAccountScreen()),
       GoRoute(path: '/shipments/create', builder: (_, __) => const CreateShipmentScreen()),
+      GoRoute(path: '/guest/shipment/:id', builder: (_, s) => GuestShipmentScreen(id: s.pathParameters['id']!)),
       GoRoute(path: '/shipments/quote', builder: (_, __) => const QuoteReviewScreen()),
       GoRoute(
         path: '/pay',
@@ -83,7 +92,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           final q = s.uri.queryParameters;
           final shipmentId = q['shipmentId'] ?? q['shipmentid'] ?? '';
           final tracking = q['trackingNumber'] ?? q['trackingnumber'] ?? '';
-          return PaymentScreen(shipmentId: shipmentId, trackingNumber: tracking);
+          final guest = q['guest'] == 'true';
+          return PaymentScreen(shipmentId: shipmentId, trackingNumber: tracking, guest: guest);
         },
       ),
       GoRoute(path: '/shipments/:id', builder: (_, s) => ShipmentDetailScreen(id: s.pathParameters['id']!)),
