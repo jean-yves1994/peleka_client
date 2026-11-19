@@ -159,15 +159,27 @@ class ApiClient {
     return 'Please check the information entered and try again.';
   }
 
+  Future<Response> _request(Future<Response> Function() call) async {
+    try {
+      return await call();
+    } on DioException catch (e) {
+      if (e.error is ApiException) throw e.error as ApiException;
+      throw ApiException('Something went wrong. Please try again.',
+          status: e.response?.statusCode);
+    } catch (_) {
+      throw ApiException('Something went wrong. Please try again.');
+    }
+  }
+
   Future<Map<String, dynamic>> get(String p,
           {Map<String, dynamic>? query, Map<String, dynamic>? headers}) async =>
-      _u(await dio.get(p, queryParameters: query, options: Options(headers: headers)));
+      _u(await _request(() => dio.get(p, queryParameters: query, options: Options(headers: headers))));
   Future<Map<String, dynamic>> post(String p, {Object? body, Map<String, dynamic>? headers}) async =>
-      _u(await dio.post(p, data: body, options: Options(headers: headers)));
+      _u(await _request(() => dio.post(p, data: body, options: Options(headers: headers))));
   Future<Map<String, dynamic>> patch(String p, {Object? body}) async =>
-      _u(await dio.patch(p, data: body));
+      _u(await _request(() => dio.patch(p, data: body)));
   Future<Map<String, dynamic>> delete(String p) async =>
-      _u(await dio.delete(p));
+      _u(await _request(() => dio.delete(p)));
   Map<String, dynamic> _u(Response r) => r.data is Map<String, dynamic>
       ? r.data
       : {'success': true, 'data': r.data};
