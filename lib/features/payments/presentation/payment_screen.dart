@@ -21,10 +21,12 @@ import '../../shipments/presentation/shipments_view_model.dart';
 class PaymentScreen extends ConsumerStatefulWidget {
   final String shipmentId;
   final String trackingNumber;
+  final bool guest;
   const PaymentScreen({
     super.key,
     required this.shipmentId,
     required this.trackingNumber,
+    this.guest = false,
   });
 
   @override
@@ -82,7 +84,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     try {
       final init = await ref
           .read(paymentRepositoryProvider)
-          .initiatePaypack(widget.shipmentId, phone: _phone.text.trim());
+          .initiatePaypack(widget.shipmentId, phone: _phone.text.trim(), guest: widget.guest);
       _paymentId = init.paymentId;
       _amount = init.amount;
       _currency = init.currency;
@@ -124,7 +126,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   Future<void> _pollOnce() async {
     if (_paymentId == null) return;
     try {
-      final status = await ref.read(paymentRepositoryProvider).status(_paymentId!);
+      final status = await ref.read(paymentRepositoryProvider).status(_paymentId!, shipmentId: widget.shipmentId, guest: widget.guest);
       if (!mounted) return;
       if (status == 'paid') {
         _pollTimer?.cancel();
@@ -168,7 +170,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                 subtitle: 'Your delivery ${widget.trackingNumber} is confirmed and '
                     'will be assigned to a rider shortly.',
                 primaryLabel: 'View shipment',
-                onPrimary: () => context.go('/shipments/${widget.shipmentId}'),
+                onPrimary: () => context.go(widget.guest ? '/login' : '/shipments/${widget.shipmentId}'),
               ),
             _Phase.failed => _result(
                 icon: Icons.error_outline,
