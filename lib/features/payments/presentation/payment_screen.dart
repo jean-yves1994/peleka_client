@@ -170,7 +170,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                 subtitle: 'Your delivery ${widget.trackingNumber} is confirmed and '
                     'will be assigned to a rider shortly.',
                 primaryLabel: 'View shipment',
-                onPrimary: () => context.go(widget.guest ? '/login' : '/shipments/${widget.shipmentId}'),
+                onPrimary: () => context.go(widget.guest ? '/guest/shipment/${widget.shipmentId}' : '/shipments/${widget.shipmentId}'),
               ),
             _Phase.failed => _result(
                 icon: Icons.error_outline,
