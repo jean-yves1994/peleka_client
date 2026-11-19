@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/router/app_router.dart';
+import '../../core/api/api_client.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/peleka_button.dart';
 import '../../core/widgets/peleka_card.dart';
@@ -47,7 +48,7 @@ class _S extends ConsumerState<ProfileScreen> {
                       await ref.read(authViewModelProvider.notifier).refreshProfile(up);
                       if (mounted) Navigator.pop(context);
                     } catch (e) {
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('ApiException: ', '')), backgroundColor: AppColors.error));
+                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(friendlyErrorMessage(e)), backgroundColor: AppColors.error));
                     } finally {
                       if (mounted) setState(() => _saving = false);
                     }
