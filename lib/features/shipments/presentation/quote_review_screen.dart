@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/api/api_client.dart';
 import '../../../core/widgets/format.dart';
 import '../../../core/widgets/peleka_button.dart';
 import '../../../core/widgets/peleka_card.dart';
@@ -55,7 +56,7 @@ class _S extends ConsumerState<QuoteReviewScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.toString().replaceAll('ApiException: ', '')),
+        content: Text(friendlyErrorMessage(e)),
         backgroundColor: AppColors.error,
       ));
     }
