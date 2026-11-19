@@ -87,7 +87,7 @@ class _S extends ConsumerState<ProfileScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password updated'), backgroundColor: AppColors.success));
                       }
                     } catch (e) {
-                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('ApiException: ', '')), backgroundColor: AppColors.error));
+                      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(friendlyErrorMessage(e)), backgroundColor: AppColors.error));
                     }
                   }),
                 ]))));
