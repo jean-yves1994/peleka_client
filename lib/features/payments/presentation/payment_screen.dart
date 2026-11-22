@@ -162,12 +162,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             IconButton(
               tooltip: widget.guest ? 'Back to your delivery' : 'Go to home',
               icon: const Icon(Icons.home_outlined),
-              onPressed: () {
-                _pollTimer?.cancel();
-                context.go(widget.guest
-                    ? '/guest/shipment/${widget.shipmentId}'
-                    : '/home');
-              },
+              onPressed: _confirmLeave,
             ),
           ],
         ),
@@ -320,7 +315,9 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     }
     if (_phase == _Phase.enterPhone || _phase == _Phase.failed) {
       if (widget.guest) {
-        context.go('/guest/shipment/${widget.shipmentId}');
+        context.go(widget.shipmentId.trim().isEmpty
+            ? '/login'
+            : '/guest/shipment/${widget.shipmentId}');
         return;
       }
       if (widget.shipmentId.trim().isEmpty) {
@@ -352,7 +349,9 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     if (leave == true && mounted) {
       _pollTimer?.cancel();
       context.go(widget.guest
-          ? '/guest/shipment/${widget.shipmentId}'
+          ? (widget.shipmentId.trim().isEmpty
+              ? '/login'
+              : '/guest/shipment/${widget.shipmentId}')
           : '/shipments/${widget.shipmentId}');
     }
   }
