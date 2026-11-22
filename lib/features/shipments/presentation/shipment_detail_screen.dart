@@ -50,6 +50,10 @@ class ShipmentDetailScreen extends ConsumerWidget {
         title: const Text('Shipment'),
         actions: [
           IconButton(
+              tooltip: 'Home',
+              icon: const Icon(Icons.home_outlined),
+              onPressed: () => context.go('/home')),
+          IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () => ref.invalidate(shipmentDetailProvider(id))),
         ],

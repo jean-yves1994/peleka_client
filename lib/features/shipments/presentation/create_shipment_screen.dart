@@ -41,7 +41,6 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
   final _recipientPhoneController = TextEditingController();
   final _senderNameController = TextEditingController();
   final _senderPhoneController = TextEditingController();
-  final _descriptionController = TextEditingController();
 
   Map<String, dynamic>? _pickupPlace;
   Map<String, dynamic>? _deliveryPlace;
@@ -76,7 +75,6 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
     _recipientPhoneController.dispose();
     _senderNameController.dispose();
     _senderPhoneController.dispose();
-    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -254,7 +252,7 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
         ..senderPhone = _senderPhoneController.text.trim()
         ..recipientName = _recipientNameController.text.trim()
         ..recipientPhone = _recipientPhoneController.text.trim()
-        ..parcelDescription = _descriptionController.text.trim()
+        ..parcelDescription = _category[0].toUpperCase() + _category.substring(1)
         ..parcelCategory = _category
         ..isFragile = _fragile
         ..quote = quote;
@@ -281,6 +279,13 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
           if (_step == 0) context.pop(); else setState(() => _step--);
         }),
         title: Text('New delivery · ${_step + 1}/3'),
+        actions: [
+          IconButton(
+            tooltip: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            onPressed: () => context.go('/login'),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
@@ -388,8 +393,6 @@ class _CreateShipmentScreenState extends ConsumerState<CreateShipmentScreen> {
       PelekaTextField(label: 'Sender name', hint: 'Your full name', controller: _senderNameController, prefixIcon: Icons.person_outline, validator: (value) => value == null || value.trim().length < 2 ? 'Required' : null),
       const SizedBox(height: 14),
       PelekaTextField(label: 'Sender phone', hint: '+2507XX XXX XXX', controller: _senderPhoneController, prefixIcon: Icons.phone_outlined, keyboardType: TextInputType.phone, validator: (value) => value == null || value.trim().length < 6 ? 'Required' : null),
-      const SizedBox(height: 14),
-      PelekaTextField(label: 'Parcel description', hint: 'e.g. Documents, shoes, electronics', controller: _descriptionController, prefixIcon: Icons.inventory_2_outlined, validator: (value) => value == null || value.trim().length < 2 ? 'Required' : null),
       const SizedBox(height: 14),
       const Text('Category', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.ink700)),
       const SizedBox(height: 8),

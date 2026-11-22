@@ -107,6 +107,13 @@ class _S extends ConsumerState<QuoteReviewScreen> {
         leading: IconButton(
             icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
         title: const Text('Review shipment'),
+        actions: [
+          IconButton(
+            tooltip: 'Home',
+            icon: const Icon(Icons.home_outlined),
+            onPressed: () => context.go('/login'),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(children: [

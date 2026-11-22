@@ -56,8 +56,15 @@ class _S extends ConsumerState<TrackingScreen> {
         appBar: AppBar(
             leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.pop()),
-            title: const Text('Live tracking')),
+                onPressed: () => context.canPop() ? context.pop() : context.go('/shipments')),
+            title: const Text('Live tracking'),
+            actions: [
+              IconButton(
+                tooltip: 'Home',
+                icon: const Icon(Icons.home_outlined),
+                onPressed: () => context.go('/home'),
+              ),
+            ]),
         body: a.when(
             loading: () => const Center(
                 child: CircularProgressIndicator(color: AppColors.orange)),

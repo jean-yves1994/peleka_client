@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/peleka_card.dart';
@@ -19,7 +20,16 @@ class _GuestShipmentScreenState extends ConsumerState<GuestShipmentScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: AppColors.bg,
-    appBar: AppBar(title: const Text('Your delivery')),
+    appBar: AppBar(
+      title: const Text('Your delivery'),
+      actions: [
+        TextButton.icon(
+          onPressed: () => context.go('/shipments/create'),
+          icon: const Icon(Icons.add, color: AppColors.orange),
+          label: const Text('New shipment', style: TextStyle(color: AppColors.orange)),
+        ),
+      ],
+    ),
     body: FutureBuilder<Map<String, dynamic>>(
       future: _shipment,
       builder: (context, snapshot) {

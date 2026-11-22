@@ -158,6 +158,13 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         appBar: AppBar(
           title: const Text('Payment'),
           leading: IconButton(icon: const Icon(Icons.close), onPressed: _confirmLeave),
+          actions: [
+            IconButton(
+              tooltip: widget.guest ? 'Back to your delivery' : 'Go to home',
+              icon: const Icon(Icons.home_outlined),
+              onPressed: () => _confirmLeave(goHome: true),
+            ),
+          ],
         ),
         body: SafeArea(
           child: switch (_phase) {
@@ -301,21 +308,25 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     );
   }
 
-  Future<void> _confirmLeave() async {
+  Future<void> _confirmLeave({bool goHome = false}) async {
+    String destination() {
+      if (widget.guest) {
+        return widget.shipmentId.trim().isEmpty
+            ? '/login'
+            : '/guest/shipment/${widget.shipmentId}';
+      }
+      if (goHome) return '/home';
+      return widget.shipmentId.trim().isEmpty
+          ? '/home'
+          : '/shipments/${widget.shipmentId}';
+    }
+
     if (_phase == _Phase.success) {
-      context.go(widget.guest ? '/guest/shipment/${widget.shipmentId}' : '/shipments/${widget.shipmentId}');
+      context.go(destination());
       return;
     }
     if (_phase == _Phase.enterPhone || _phase == _Phase.failed) {
-      if (widget.guest) {
-        context.go('/guest/shipment/${widget.shipmentId}');
-        return;
-      }
-      if (widget.shipmentId.trim().isEmpty) {
-        context.go('/login');
-      } else {
-        context.go('/shipments/${widget.shipmentId}');
-      }
+      context.go(destination());
       return;
     }
     final leave = await showDialog<bool>(
@@ -339,7 +350,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     );
     if (leave == true && mounted) {
       _pollTimer?.cancel();
-      context.go('/shipments/${widget.shipmentId}');
+      context.go(destination());
     }
   }
 
