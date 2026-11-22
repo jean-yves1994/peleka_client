@@ -162,7 +162,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             IconButton(
               tooltip: widget.guest ? 'Back to your delivery' : 'Go to home',
               icon: const Icon(Icons.home_outlined),
-              onPressed: _confirmLeave,
+              onPressed: () => _confirmLeave(goHome: true),
             ),
           ],
         ),
@@ -308,23 +308,25 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     );
   }
 
-  Future<void> _confirmLeave() async {
+  Future<void> _confirmLeave({bool goHome = false}) async {
+    String destination() {
+      if (widget.guest) {
+        return widget.shipmentId.trim().isEmpty
+            ? '/login'
+            : '/guest/shipment/${widget.shipmentId}';
+      }
+      if (goHome) return '/home';
+      return widget.shipmentId.trim().isEmpty
+          ? '/home'
+          : '/shipments/${widget.shipmentId}';
+    }
+
     if (_phase == _Phase.success) {
-      context.go(widget.guest ? '/guest/shipment/${widget.shipmentId}' : '/shipments/${widget.shipmentId}');
+      context.go(destination());
       return;
     }
     if (_phase == _Phase.enterPhone || _phase == _Phase.failed) {
-      if (widget.guest) {
-        context.go(widget.shipmentId.trim().isEmpty
-            ? '/login'
-            : '/guest/shipment/${widget.shipmentId}');
-        return;
-      }
-      if (widget.shipmentId.trim().isEmpty) {
-        context.go('/login');
-      } else {
-        context.go('/shipments/${widget.shipmentId}');
-      }
+      context.go(destination());
       return;
     }
     final leave = await showDialog<bool>(
@@ -348,11 +350,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     );
     if (leave == true && mounted) {
       _pollTimer?.cancel();
-      context.go(widget.guest
-          ? (widget.shipmentId.trim().isEmpty
-              ? '/login'
-              : '/guest/shipment/${widget.shipmentId}')
-          : '/shipments/${widget.shipmentId}');
+      context.go(destination());
     }
   }
 
