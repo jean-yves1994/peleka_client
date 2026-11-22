@@ -42,7 +42,7 @@ class CreateShipmentDraft {
         'delivery_lat': deliveryLat,
         'delivery_lng': deliveryLng,
         'delivery_notes': deliveryNotes,
-        'parcel_description': parcelDescription,
+        'parcel_description': parcelDescription.trim().isNotEmpty ? parcelDescription.trim() : parcelCategory,
         'parcel_category': parcelCategory,
         'is_fragile': isFragile,
         if (discountCode != null && discountCode!.isNotEmpty)
