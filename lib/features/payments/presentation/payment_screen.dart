@@ -158,6 +158,18 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         appBar: AppBar(
           title: const Text('Payment'),
           leading: IconButton(icon: const Icon(Icons.close), onPressed: _confirmLeave),
+          actions: [
+            IconButton(
+              tooltip: widget.guest ? 'Back to your delivery' : 'Go to home',
+              icon: const Icon(Icons.home_outlined),
+              onPressed: () {
+                _pollTimer?.cancel();
+                context.go(widget.guest
+                    ? '/guest/shipment/${widget.shipmentId}'
+                    : '/home');
+              },
+            ),
+          ],
         ),
         body: SafeArea(
           child: switch (_phase) {
@@ -339,7 +351,9 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     );
     if (leave == true && mounted) {
       _pollTimer?.cancel();
-      context.go('/shipments/${widget.shipmentId}');
+      context.go(widget.guest
+          ? '/guest/shipment/${widget.shipmentId}'
+          : '/shipments/${widget.shipmentId}');
     }
   }
 
